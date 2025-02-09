@@ -1,0 +1,15 @@
+# Use the same Python runtime
+FROM python:3.12
+
+# Set the working directory
+WORKDIR /app
+
+# Copy all files
+COPY . .
+
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Command to start Celery worker
+CMD ["celery", "-A", "celery_worker.celery", "worker", "--loglevel=info"]

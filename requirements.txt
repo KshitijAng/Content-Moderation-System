@@ -1,0 +1,10 @@
+fastapi 
+uvicorn[standard]
+openai==0.28
+python-dotenv
+psycopg2-binary
+sqlalchemy 
+asyncpg 
+databases 
+celery 
+redis
