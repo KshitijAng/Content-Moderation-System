@@ -34,9 +34,14 @@ class ModerationResponse(BaseModel):
 
 @app.post("/api/v1/moderate/text", response_model=ModerationResponse)
 def moderate_text(request: TextModerationRequest, db: Session = Depends(get_db)):
-    moderation_id = str(uuid.uuid4())  # Generate a unique task ID
+    if not request.text.strip():  # Reject empty strings after stripping spaces
+        raise HTTPException(status_code=400, detail="Text input cannot be empty.")
+    
+    if request.text.isdigit():  # Reject inputs that are only numbers
+        raise HTTPException(status_code=400, detail="Text input cannot be only numbers.")
 
-    # Store the initial moderation request in PostgreSQL
+    moderation_id = str(uuid.uuid4())
+
     moderation_result = ModerationResult(
         id=moderation_id,
         text=request.text, 
@@ -47,7 +52,6 @@ def moderate_text(request: TextModerationRequest, db: Session = Depends(get_db))
     db.add(moderation_result)
     db.commit()
 
-    # Send task to Celery
     moderate_text_task.apply_async(args=[moderation_id, request.text])
     
     return moderation_result
